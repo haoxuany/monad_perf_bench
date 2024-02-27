@@ -2,17 +2,18 @@ So far:
 
 ```
 dune exec monad_perf_bench -- -ascii
-Estimated testing time 1m30s (9 benchmarks x 10s). Change using '-quota'.
+Estimated testing time 1m40s (10 benchmarks x 10s). Change using '-quota'.
 
 Name                         Time/Run      mWd/Run   mjWd/Run   Prom/Run   Percentage
 ---------------------------- ---------- ------------ ---------- ---------- ------------
-no monad                       2.22us    5_997.03w                              5.58%
-imperative                     5.80us    3_002.92w      0.14w      0.14w       14.58%
-imperative (split product)     1.42us        9.04w                              3.57%
-prod                          39.79us   67_963.30w    197.23w    197.22w       99.92%
-prod inline                   36.68us   67_962.75w    199.31w    199.30w       92.11%
-prod inline boxed             39.82us   67_964.81w    188.75w    188.75w      100.00%
-cont                          32.52us   71_964.17w    904.95w    904.97w       81.66%
-cont unbox                    32.57us   71_964.19w    900.20w    900.21w       81.80%
-cont inline unbox             33.90us   71_963.82w    900.69w    900.67w       85.15%
+no monad                       2.22us    5_997.03w                              5.45%
+imperative                     4.44us    3_003.05w      0.14w      0.14w       10.90%
+imperative (split product)     1.43us        8.99w                              3.50%
+iter library                   4.84us    4_014.88w      0.23w      0.23w       11.86%
+prod                          40.77us   67_964.68w    199.09w    199.09w      100.00%
+prod inline                   38.26us   67_962.62w    191.82w    191.82w       93.85%
+prod inline boxed             40.35us   67_963.10w    197.39w    197.38w       98.99%
+cont                          29.80us   71_963.43w    900.34w    900.35w       73.09%
+cont unbox                    30.07us   71_963.00w    900.30w    900.28w       73.76%
+cont inline unbox             29.86us   71_963.22w    900.61w    900.59w       73.23%
 ```

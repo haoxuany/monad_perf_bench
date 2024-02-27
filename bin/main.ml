@@ -37,6 +37,18 @@ module NoMonad = struct
     v
 end
 
+module Iterative = struct
+  let fib n =
+    let (_ , _ , v) = 
+      Iter.(
+        0 -- n
+        (* off by 1, but we only care about performance benchmarks *)
+        |> fold (fun (_ , a , b) _ -> (a , b , a + b)) (0 , 0 , 1)
+      )
+    in
+    v
+end
+
 module Imperative = struct
   let fib n =
     let state = ref (0 , 0) in
@@ -105,6 +117,7 @@ let () =
       [ bench "no monad" NoMonad.fib
       ; bench "imperative" Imperative.fib
       ; bench "imperative (split product)" ImperativeSplit.fib
+      ; bench "iter library" Iterative.fib
       ; bench "prod" ProdRaw.fib
       ; bench "prod inline" ProdInline.fib
       ; bench "prod inline boxed" ProdInlineBoxed.fib
