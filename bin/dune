@@ -1,5 +1,7 @@
+(env (dev (flags (:standard -warn-error -A))))
+
 (executable
  (public_name monad_perf_bench)
  (name main)
- (libraries core_bench)
+ (libraries core_bench core_unix.command_unix)
 )
