@@ -1,0 +1,5 @@
+(executable
+ (public_name monad_perf_bench)
+ (name main)
+ (libraries core_bench)
+)
