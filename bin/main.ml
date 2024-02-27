@@ -37,6 +37,47 @@ module NoMonad = struct
     v
 end
 
+module Imperative = struct
+  let fib n =
+    let state = ref (0 , 0) in
+    let rec fib n =
+      match n with
+      | 0 | 1 ->
+         begin
+           state := (0 , 0);
+           n
+         end
+      | _ ->
+         let b = fib (n - 1) in
+         let (_ , a) = !state in
+         let () = state := (a , b) in
+         a + b
+    in
+    fib n
+end
+
+module ImperativeSplit = struct
+  let fib n =
+    let a = ref 0 in
+    let b = ref 0 in
+    let rec fib n =
+      match n with
+      | 0 | 1 ->
+         begin
+           a := 0;
+           b := 0;
+           n
+         end
+      | _ ->
+         let b' = fib (n - 1) in
+         let a' = !b in
+         let () = a := a' in
+         let () = b := b' in
+         a' + b'
+    in
+    fib n
+end
+
 module S = struct type state = int * int end
 
 module MP = MonadProd(S)
@@ -62,6 +103,8 @@ let () =
   let cmd =
     Bench.make_command
       [ bench "no monad" NoMonad.fib
+      ; bench "imperative" Imperative.fib
+      ; bench "imperative (split product)" ImperativeSplit.fib
       ; bench "prod" ProdRaw.fib
       ; bench "prod inline" ProdInline.fib
       ; bench "prod inline boxed" ProdInlineBoxed.fib

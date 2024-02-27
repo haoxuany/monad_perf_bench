@@ -2,15 +2,17 @@ So far:
 
 ```
 dune exec monad_perf_bench -- -ascii
-Estimated testing time 1m10s (7 benchmarks x 10s). Change using '-quota'.
+Estimated testing time 1m30s (9 benchmarks x 10s). Change using '-quota'.
 
-Name                Time/Run   mWd/Run   mjWd/Run   Prom/Run   Percentage
-------------------- ---------- --------- ---------- ---------- ------------
-no monad              2.02us    6.00kw                              4.76%
-prod                 38.93us   67.96kw    196.35w    196.35w       91.89%
-prod inline          42.37us   67.96kw    200.51w    200.51w      100.00%
-prod inline boxed    39.30us   67.96kw    197.15w    197.15w       92.77%
-cont                 29.85us   71.96kw    902.59w    902.58w       70.45%
-cont unbox           30.06us   71.96kw    902.38w    902.39w       70.95%
-cont inline unbox    29.84us   71.96kw    905.08w    905.06w       70.43%
+Name                         Time/Run      mWd/Run   mjWd/Run   Prom/Run   Percentage
+---------------------------- ---------- ------------ ---------- ---------- ------------
+no monad                       2.22us    5_997.03w                              5.58%
+imperative                     5.80us    3_002.92w      0.14w      0.14w       14.58%
+imperative (split product)     1.42us        9.04w                              3.57%
+prod                          39.79us   67_963.30w    197.23w    197.22w       99.92%
+prod inline                   36.68us   67_962.75w    199.31w    199.30w       92.11%
+prod inline boxed             39.82us   67_964.81w    188.75w    188.75w      100.00%
+cont                          32.52us   71_964.17w    904.95w    904.97w       81.66%
+cont unbox                    32.57us   71_964.19w    900.20w    900.21w       81.80%
+cont inline unbox             33.90us   71_963.82w    900.69w    900.67w       85.15%
 ```
