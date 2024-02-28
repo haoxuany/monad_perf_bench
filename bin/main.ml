@@ -24,6 +24,42 @@ module Fib(M : STATE_MONAD with type state = int * int) = struct
     v
 end
 
+module ManualInlineMonad = struct
+  let fib n =
+    let rec fib_cmd n =
+      match n with
+      | 0 | 1 ->
+         fun _state ->
+         let (a , b) = (0 , 0) in
+         (n , (a , b))
+      | _ ->
+         fun state ->
+         let (b , state) = fib_cmd (n - 1) state in
+         let (_ , a) = state in
+         let state = (a , b) in
+         (a + b , state)
+    in
+    let v , _ = fib_cmd n (0 , 0) in
+    v
+end
+
+module ManualInlineMonadEta = struct
+  let fib n =
+    let rec fib_cmd n state =
+      match n with
+      | 0 | 1 ->
+         let (a , b) = (0 , 0) in
+         (n , (a , b))
+      | _ ->
+         let (b , state) = fib_cmd (n - 1) state in
+         let (_ , a) = state in
+         let state = (a , b) in
+         (a + b , state)
+    in
+    let v , _ = fib_cmd n (0 , 0) in
+    v
+end
+
 module NoMonad = struct
   let fib n =
     let rec fib n =
@@ -111,7 +147,7 @@ module MCIU = MonadContInlineUnbox(S)
 module ContInlineUnbox = Fib(MCIU)
 
 let () =
-  let bench name f = Bench.Test.create ~name (fun () -> f 1000) in
+  let bench name f = Bench.Test.create ~name (fun () -> f 8000) in
   let cmd =
     Bench.make_command
       [ bench "no monad" NoMonad.fib
@@ -121,6 +157,8 @@ let () =
       ; bench "prod" ProdRaw.fib
       ; bench "prod inline" ProdInline.fib
       ; bench "prod inline boxed" ProdInlineBoxed.fib
+      ; bench "prod manual inline" ManualInlineMonad.fib
+      ; bench "prod manual inline (eta expanded)" ManualInlineMonadEta.fib
       ; bench "cont" ContRaw.fib
       ; bench "cont unbox" ContUnbox.fib
       ; bench "cont inline unbox" ContInlineUnbox.fib
