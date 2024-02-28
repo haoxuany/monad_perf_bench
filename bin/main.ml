@@ -23,6 +23,28 @@ module Fib(M : STATE_MONAD with type state = int * int) = struct
     let v , _ = force (fib_cmd n) (0 , 0) in
     v
 end
+  [@@inline always]
+  [@@specialize always]
+
+module MonadProdHere = struct
+  type state = int * int
+
+  type 'a m = state -> 'a * state
+
+  let bind f bnd state =
+    let v , state = f state in
+    bnd v state
+
+  let ( let* ) = bind
+
+  let return v state = (v , state)
+
+  let get v = (v , v)
+
+  let set v _ = ( () , v )
+
+  let force m state = m state
+end
 
 module ManualInlineMonad = struct
   let fib n =
@@ -128,8 +150,10 @@ end
 
 module S = struct type state = int * int end
 
-module MP = MonadProd(S)
-module ProdRaw = Fib(MP)
+module MP = MonadProd(S) [@@inlined always]
+module ProdRaw = Fib(MP) [@@inlined always]
+
+module ProdHere = Fib(MonadProdHere)
 
 module MPI = MonadProdInline(S)
 module ProdInline = Fib(MPI)
@@ -159,6 +183,7 @@ let () =
       ; bench "prod inline boxed" ProdInlineBoxed.fib
       ; bench "prod manual inline" ManualInlineMonad.fib
       ; bench "prod manual inline (eta expanded)" ManualInlineMonadEta.fib
+      ; bench "prod here" ProdHere.fib
       ; bench "cont" ContRaw.fib
       ; bench "cont unbox" ContUnbox.fib
       ; bench "cont inline unbox" ContInlineUnbox.fib

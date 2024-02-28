@@ -3,6 +3,8 @@
 (executable
  (public_name monad_perf_bench)
  (name main)
- (ocamlopt_flags (:standard -O3 -inlining-report -rounds 7))
+ (ocamlopt_flags (:standard -O3 -inlining-report -rounds 7 -unbox-closures
+                   ; -dflambda-verbose
+ ))
  (libraries core_bench core_unix.command_unix iter)
 )
