@@ -34,31 +34,66 @@ module MonadProdHere = struct
   let bind f bnd state =
     let v , state = f state in
     bnd v state
+    [@@specialize]
+    [@@inline always]
 
   let ( let* ) = bind
+    [@@specialize]
 
   let return v state = (v , state)
+    [@@specialize]
+    [@@inline always]
 
   let get v = (v , v)
+    [@@specialize]
+    [@@inline always]
 
   let set v _ = ( () , v )
+    [@@specialize]
+    [@@inline always]
 
   let force m state = m state
+    [@@specialize]
+    [@@inline always]
 end
+
+module FibDefun : sig val fib : int -> int end = struct
+  open MonadProdHere
+
+  let rec fib_cmd n =
+    match n with
+    | 0 | 1 ->
+       let* () = set (0 , 0) in
+       return n
+    | _ ->
+       let* b = fib_cmd (n - 1) in
+       let* (_ , a) = get in
+       let* () = set (a , b) in
+       return (a + b)
+    [@@specialize]
+    [@@inline always]
+
+  let fib n =
+    let v , _ = force (fib_cmd n) (0 , 0) in
+    v
+    [@@specialize]
+    [@@inline always]
+end
+
 
 module ManualInlineMonad = struct
   let fib n =
-    let rec fib_cmd n =
+    let rec fib_cmd (n : int) : (int * int) -> int * (int * int) = 
       match n with
       | 0 | 1 ->
-         fun _state ->
-         let (a , b) = (0 , 0) in
+         fun (_state : int * int) ->
+         let (() , (a , b)) = (() , (0 , 0)) in
          (n , (a , b))
       | _ ->
-         fun state ->
+         fun (state : int * int) ->
          let (b , state) = fib_cmd (n - 1) state in
-         let (_ , a) = state in
-         let state = (a , b) in
+         let ((_ , a) , state) = (state , state) in
+         let (() , state) = (() , (a , b)) in
          (a + b , state)
     in
     let v , _ = fib_cmd n (0 , 0) in
@@ -181,6 +216,7 @@ let () =
       ; bench "prod" ProdRaw.fib
       ; bench "prod inline" ProdInline.fib
       ; bench "prod inline boxed" ProdInlineBoxed.fib
+      ; bench "prod defun" FibDefun.fib
       ; bench "prod manual inline" ManualInlineMonad.fib
       ; bench "prod manual inline (eta expanded)" ManualInlineMonadEta.fib
       ; bench "prod here" ProdHere.fib
